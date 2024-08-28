@@ -7,7 +7,7 @@
 This application provides insight into alert hygiene and overall cleanliness of a given New Relic account's alert environment. This includes details around general alert conditions, policies, and notifications with the aim to provide useful details for optimizing and tuning alert artifacts.
 
 ## Features
-* Aggregated counts of issues and notifications across many accounts
+* Aggregated counts of issues, notifications, and CCU consumption across many accounts
 * Drilldown KPIs, including:
    * Flapping incidents - Incidents open for 5 min or less
    * Long Running incidents - Incidents open greater than 1 day
@@ -16,6 +16,7 @@ This application provides insight into alert hygiene and overall cleanliness of 
    * Overlapping Workflows - Workflows with duplicate filters (often the cause of duplicate notifications)
    * Non-Covered Entities - Entities with no conditions targeting them (no alerts).
 * Condition History - See the history of incidents that have triggered for a given policy/condition, as well as any recent changes, signal errors, and top offending entities.
+* CCU Optimization - Breakdown of alert conditions CCU by condition id + optimization recommendations for reducing CCU.
 
 
 ## Screenshots
@@ -23,6 +24,7 @@ This application provides insight into alert hygiene and overall cleanliness of 
 ![Overview](screenshots/drilldown.png)
 ![Overview](screenshots/history1.png)
 ![Overview](screenshots/history2.png)
+![Overview](screenshots/ccu.png)
 
 ## Getting Started
 First, ensure that you have [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and [NPM](https://www.npmjs.com/get-npm) installed. If you're unsure whether you have one or both of them installed, run the following command(s) (If you have them installed these commands will return a version number, if not, the commands won't be recognized):

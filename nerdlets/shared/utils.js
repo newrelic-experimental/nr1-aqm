@@ -1,9 +1,9 @@
 import { NerdGraphQuery } from 'nr1';
 
 export const getConditionTimeline = async (account, conditionId, timeClause) => {
-  let critical = `FROM NrAiIncident SELECT uniques(timestamp, 3000) as 'critical_times' where event = 'open' and priority = 'critical' and conditionId = ${conditionId} ${timeClause}`;
-  let warning = `FROM NrAiIncident SELECT uniques(timestamp, 3000) as 'warning_times' where event = 'open' and priority = 'warning' and conditionId = ${conditionId} ${timeClause}`;
-  let muted  = `FROM NrAiIncident SELECT uniques(timestamp, 3000) as 'muted_times' where event = 'open' and muted is true and conditionId = ${conditionId} ${timeClause}`;
+  let critical = `FROM NrAiIncident SELECT uniques(timestamp, 5000) as 'critical_times' where event = 'open' and priority = 'critical' and conditionId = ${conditionId} ${timeClause}`;
+  let warning = `FROM NrAiIncident SELECT uniques(timestamp, 5000) as 'warning_times' where event = 'open' and priority = 'warning' and conditionId = ${conditionId} ${timeClause}`;
+  let muted  = `FROM NrAiIncident SELECT uniques(timestamp, 5000) as 'muted_times' where event = 'open' and muted is true and conditionId = ${conditionId} ${timeClause}`;
 
   const gql =  `
   {
@@ -274,14 +274,35 @@ export const getTooltip = (context) => {
   return text;
 }
 
+export const getTopCcuConditions = async (timeClause, account) => {
+    const ccuQ = `FROM NrComputeUsage SELECT sum(usage) as 'ccu' where productLine = 'Compute' and dimension_productCapability = 'Alert Conditions' facet dimension_conditionId ${timeClause} LIMIT 100`;
+
+    const gql =  `
+    {
+      actor {
+        ccuCount: nrql(accounts: [${account.accountId}], query: "${ccuQ}", timeout: 90) {results}
+      }
+    }`;
+
+    let data = await NerdGraphQuery.query({
+      query: gql
+    });
+
+    const result = data?.data?.actor?.ccuCount.results;
+    return result;
+};
+
 export const getAlertCounts = async (timeClause, account) => {
     const notificationsQ = `FROM NrAiNotification SELECT count(*) ${timeClause}`;
     const issuesQ = `FROM NrAiIssue SELECT uniqueCount(issueId) as 'issueCount' where event in ('activate', 'close') ${timeClause}`;
+    const ccuQ = `FROM NrComputeUsage SELECT filter(sum(usage), where dimension_productCapability = 'Alert Conditions') as 'alertCCU', percentage(sum(usage), where dimension_productCapability = 'Alert Conditions') as 'alertPercent' where productLine = 'Compute' ${timeClause}`;
+
     const gql =  `
     {
       actor {
         notificationCount: nrql(accounts: [${account.id}], query: "${notificationsQ}", timeout: 90) {results}
         issueCount: nrql(accounts: [${account.id}], query: "${issuesQ}", timeout: 90) {results}
+        ccuCount: nrql(accounts: [${account.id}], query: "${ccuQ}", timeout: 90) {results}
       }
     }`;
 
@@ -290,7 +311,7 @@ export const getAlertCounts = async (timeClause, account) => {
     });
 
     const result = data?.data?.actor;
-    const counts = {'accountId': account.id, 'accountName': account.name, 'notificationCount': result?.notificationCount?.results[0]?.count, 'issueCount': result?.issueCount?.results[0]?.issueCount }
+    const counts = {'accountId': account.id, 'accountName': account.name, 'notificationCount': result?.notificationCount?.results[0]?.count, 'issueCount': result?.issueCount?.results[0]?.issueCount, 'ccu': result?.ccuCount?.results[0].alertCCU, 'ccuPercent': result?.ccuCount?.results[0].alertPercent }
     return counts;
 };
 

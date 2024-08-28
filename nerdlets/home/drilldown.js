@@ -8,6 +8,7 @@ import Notifications from '../drilldown/notifications';
 import Incidents from '../drilldown/incidents';
 import ConditionHistory from '../drilldown/conditions';
 import Entities from '../drilldown/entities';
+import CcuOptimization from '../drilldown/ccu';
 import async from 'async';
 
 export default class Drilldown extends React.Component {
@@ -468,6 +469,14 @@ export default class Drilldown extends React.Component {
         render: () => (
           <Tab.Pane>
             <ConditionHistory selectedAccount={this.props.account} timeRange={this.props.timeRange} policies={policies}/>
+          </Tab.Pane>
+        )
+      },
+      {
+        menuItem: 'CCU Optimization',
+        render: () => (
+          <Tab.Pane>
+            <CcuOptimization selectedAccount={this.props.account} timeRange={this.props.timeRange} />
           </Tab.Pane>
         )
       }

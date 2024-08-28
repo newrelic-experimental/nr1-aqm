@@ -13,6 +13,16 @@
   width: 48%
 }
 
+code {
+  color: green;
+  font-family: 'Courier New', Courier, monospace;;
+}
+
+code.bad {
+  color: red;
+  font-family: 'Courier New', Courier, monospace;;
+}
+
 table {
   border-collapse: collapse;
   border-spacing: 0;
