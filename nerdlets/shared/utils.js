@@ -778,40 +778,17 @@ export const getNotifications = async (account, sinceClause) => {
 // }
 
 export const getIssues = async (account, cursor, timeWindow) => {
-  //TODO: product to fix api behavior
   let gql = ``;
+
   if (cursor == null) {
+    //TODO: this graphql can still be improved by engineering (i.e: filter for eventType)
     gql = `
-    {
-    actor {
-      account(id: ${account.accountId}) {
-        aiIssues {
-          issues(
-            timeWindow: {endTime: ${timeWindow.end}, startTime: ${timeWindow.start}}
-          ) {
-            issues {
-              conditionName
-              issueId
-              policyName
-              title
-              activatedAt
-              closedAt
-              eventType
-            }
-            nextCursor
-          }
-        }
-      }
-    }
-  }`;
-  } else {
-    gql = `
-    {
+      {
       actor {
         account(id: ${account.accountId}) {
           aiIssues {
-            issues(
-              cursor: "${cursor}"
+            issuesEvents(
+              filter: {states: ACTIVATED}
               timeWindow: {endTime: ${timeWindow.end}, startTime: ${timeWindow.start}}
             ) {
               issues {
@@ -828,8 +805,33 @@ export const getIssues = async (account, cursor, timeWindow) => {
           }
         }
       }
-    }
-    `;
+    }`;
+  } else {
+    gql = `
+      {
+      actor {
+        account(id: ${account.accountId}) {
+          aiIssues {
+            issuesEvents(
+              cursor: "${cursor}"
+              filter: {states: ACTIVATED}
+              timeWindow: {endTime: ${timeWindow.end}, startTime: ${timeWindow.start}}
+            ) {
+              issues {
+                conditionName
+                issueId
+                policyName
+                title
+                activatedAt
+                closedAt
+                eventType
+              }
+              nextCursor
+            }
+          }
+        }
+      }
+    }`;
   }
 
   const data = await NerdGraphQuery.query({
@@ -841,8 +843,9 @@ export const getIssues = async (account, cursor, timeWindow) => {
     console.debug(data.error);
     return null;
   }
-  let result = data?.data?.actor?.account?.aiIssues?.issues?.issues;
-  let nextCursor = data?.data?.actor?.account?.aiIssues?.issues?.nextCursor;
+  let result = data?.data?.actor?.account?.aiIssues?.issuesEvents?.issues;
+  let nextCursor =
+    data?.data?.actor?.account?.aiIssues?.issuesEvents?.nextCursor;
 
   if (nextCursor == null) {
     return result;
