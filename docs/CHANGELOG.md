@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/newrelic/nr1-aqm/compare/v1.1.3...v1.1.4) (2026-02-17)
+
+
+### Bug Fixes
+
+* switch getIssues gql to issueEvents ([45df419](https://github.com/newrelic/nr1-aqm/commit/45df419f3fadd294d9d2adc61af69b04d12e47fd))
+
 ## [1.1.3](https://github.com/newrelic/nr1-aqm/compare/v1.1.2...v1.1.3) (2025-10-24)
 
 
